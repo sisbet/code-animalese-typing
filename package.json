@@ -89,6 +89,13 @@
           "description": "When a key is pressed, the audio slowly fades out over the course of the track. This value determines how many seconds it takes before the audio fully fades out.",
           "minimum": 0
         },
+        "vscode-animalese.intonation.pitchShift": {
+          "type": "number",
+          "default": 0,
+          "description": "Fixed pitch shift in semitones. Positive values make sounds higher, negative values make them lower. Range: -12 to +12 semitones.",
+          "minimum": -12,
+          "maximum": 12
+        },
         "vscode-animalese.intonation.pitchVariation": {
           "type": "integer",
           "default": 100,

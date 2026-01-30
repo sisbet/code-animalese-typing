@@ -41,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 }
 
-export function deactivate() {}
+export function deactivate() { }
 
 export async function handleKeyPress(
     context: vscode.ExtensionContext,
@@ -78,10 +78,13 @@ export async function handleKeyPress(
 
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
+
+    const pitchShiftCents = settings.intonation_pitchShift * 100;
+
     source.detune.value = isMelodic(key)
-        ? 0
-        : Math.random() * settings.intonation_pitchVariation * 2 -
-          settings.intonation_pitchVariation;
+        ? pitchShiftCents
+        : pitchShiftCents + (Math.random() * settings.intonation_pitchVariation * 2 -
+            settings.intonation_pitchVariation);
 
     const gainNode = audioContext.createGain();
     let audioVolume = settings.volume;
@@ -89,6 +92,7 @@ export async function handleKeyPress(
         audioVolume =
             audioVolume * (1 + settings.intonation_louderUppercase / 100);
         source.detune.value =
+            pitchShiftCents +
             1.5 *
             settings.intonation_pitchVariation *
             (1 + settings.intonation_louderUppercase / 100);
