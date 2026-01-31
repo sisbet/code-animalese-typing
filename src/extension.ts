@@ -10,10 +10,47 @@ import { getDisableCommand } from './commands/disable';
 import { getSetVoiceCommand } from './commands/setVoice';
 import { getSetVolumeCommand } from './commands/setVolume';
 import { VOICE_LIST } from './constants/voiceList';
-import { playAudio } from './audio';
+import { playAudio, cleanupChannels } from './audio';
+import { isAlphabetical, isHarmonic } from './charTypeChecks';
 
 export let extensionEnabled = true;
 export const setExtensionEnabled = (val: boolean) => (extensionEnabled = val);
+
+// Channel assignments for different sound types
+const CHANNEL_MAP = {
+    voice: 1,
+    melodic: 3,
+    sfx: 2,
+} as const;
+
+/**
+ * ### Assigns a channel number based on the key type.
+ * @param key The keyboard input character.
+ * @returns {number} The channel number (1 for voice, 2 for SFX, 3 for melodic).
+ */
+function assignKeyToChannel(key: string): number {
+    switch (true) {
+        case isAlphabetical(key):
+            return CHANNEL_MAP.voice;
+        case isHarmonic(key):
+            return CHANNEL_MAP.melodic;
+        default:
+            return CHANNEL_MAP.sfx;
+    }
+}
+
+let sharedAudioContext: AudioContext | null = null;
+
+/**
+ * ### Gets or creates the shared audio context.
+ * @returns {AudioContext} The shared audio context instance.
+ */
+function getSharedAudioContext(): AudioContext {
+    if (!sharedAudioContext) {
+        sharedAudioContext = new AudioContext();
+    }
+    return sharedAudioContext;
+}
 
 /**
  * Extracts the key character from a text document change event.
@@ -58,6 +95,8 @@ function validateAudioFilePath(filePath: string, key: string): boolean {
 export function activate(context: vscode.ExtensionContext) {
     loadSettings(true);
 
+    getSharedAudioContext();
+
     vscode.workspace.onDidChangeConfiguration((event) => {
         if (!event.affectsConfiguration('vscode-animalese')) return;
         loadSettings(false); // Needed to update the `settings` variable for immediate effect.
@@ -80,7 +119,15 @@ export function activate(context: vscode.ExtensionContext) {
     });
 }
 
-export function deactivate() { }
+export function deactivate() {
+
+    cleanupChannels();
+
+    if (sharedAudioContext) {
+        sharedAudioContext.close();
+        sharedAudioContext = null;
+    }
+}
 
 export async function handleKeyPress(
     context: vscode.ExtensionContext,
@@ -99,6 +146,8 @@ export async function handleKeyPress(
         return;
     }
 
-    const audioContext = new AudioContext();
-    await playAudio(audioContext, filePath, key);
+    const channel = assignKeyToChannel(key);
+
+    const audioContext = getSharedAudioContext();
+    await playAudio(audioContext, filePath, key, channel);
 }
