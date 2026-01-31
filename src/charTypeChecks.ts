@@ -29,3 +29,4 @@ export function isNumeric(char: string | number): boolean {
     if (typeof char === 'string') return false;
     return NUMBERS.includes(char.toString());
 }
+

@@ -1,5 +1,5 @@
 import path from 'path';
-import { isAlphabetical, isHarmonic, isSymbolic } from '../isParticularType';
+import { isAlphabetical, isHarmonic, isSymbolic } from '../charTypeChecks';
 import { HARMONIC_CHARACTERS } from '../constants/charTypes';
 import { settings } from '../settings/pluginSettings';
 import { VOICE_LIST } from '../constants/voiceList';
