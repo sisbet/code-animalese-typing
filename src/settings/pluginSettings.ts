@@ -2,6 +2,7 @@ export const settings = {
     volume: 50,
     voice: 'Female Voice 1 (Sweet)',
     intonation_falloffTime: 0.5,
+    intonation_disableFalloff: true,
     intonation_pitchShift: 0,
     intonation_pitchVariation: 100,
     intonation_switchToExponentialFalloff: false,

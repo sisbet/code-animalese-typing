@@ -99,16 +99,19 @@ export async function handleKeyPress(
     }
 
     gainNode.gain.setValueAtTime(audioVolume / 100, audioContext.currentTime);
-    if (settings.intonation_switchToExponentialFalloff) {
-        gainNode.gain.exponentialRampToValueAtTime(
-            1e-5, // Exponential function can never equal 0.
-            audioContext.currentTime + settings.intonation_falloffTime
-        );
-    } else {
-        gainNode.gain.linearRampToValueAtTime(
-            0,
-            audioContext.currentTime + settings.intonation_falloffTime
-        );
+
+    if (!settings.intonation_disableFalloff) {
+        if (settings.intonation_switchToExponentialFalloff) {
+            gainNode.gain.exponentialRampToValueAtTime(
+                1e-5, // Exponential function can never equal 0.
+                audioContext.currentTime + settings.intonation_falloffTime
+            );
+        } else {
+            gainNode.gain.linearRampToValueAtTime(
+                0,
+                audioContext.currentTime + settings.intonation_falloffTime
+            );
+        }
     }
     source.connect(gainNode);
     gainNode.connect(audioContext.destination);
